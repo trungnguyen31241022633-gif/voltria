@@ -102,7 +102,7 @@ const CVUploadSection: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+    <div className="w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row min-h-[650px]">
       {/* Left: Upload Area */}
       <div className="p-8 md:w-5/12 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-100 relative">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Upload CV của bạn</h2>
@@ -112,7 +112,7 @@ const CVUploadSection: React.FC = () => {
           <>
             {/* Drag & Drop Zone */}
             <div 
-              className={`relative border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition-colors cursor-pointer
+              className={`relative border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition-colors cursor-pointer flex-1 min-h-[200px]
                 ${dragActive ? 'border-[#06b6d4] bg-cyan-50' : 'border-gray-300 hover:border-[#06b6d4] hover:bg-cyan-50'}
               `}
               onDragEnter={handleDrag}
@@ -149,7 +149,7 @@ const CVUploadSection: React.FC = () => {
                 <div className="mt-4">
                 <p className="text-xs text-gray-500 mb-2 font-medium">Hoặc dán nội dung Text:</p>
                 <textarea 
-                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#06b6d4] focus:border-transparent outline-none resize-none h-20"
+                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#06b6d4] focus:border-transparent outline-none resize-none h-32"
                     placeholder="Dán nội dung sơ yếu lý lịch của bạn vào đây..."
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}
@@ -213,7 +213,7 @@ const CVUploadSection: React.FC = () => {
       </div>
 
       {/* Right: Results / Promo */}
-      <div className="md:w-7/12 bg-gray-50 p-8 flex flex-col overflow-y-auto max-h-[600px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div className="md:w-7/12 bg-gray-50 p-8 flex flex-col overflow-y-auto max-h-[650px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {analysis.result ? (
           <div className="space-y-6 animate-fadeIn">
             {/* Extracted Profile Info */}

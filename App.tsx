@@ -52,7 +52,7 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             {/* Left Column: Title & Search */}
-            <div className="lg:col-span-5 text-white space-y-6">
+            <div className="lg:col-span-4 text-white space-y-6">
               <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight">
                 Upload CV tìm việc <br />
                 <span className="text-cyan-200 opacity-90 text-3xl font-bold mt-2 block">
@@ -99,7 +99,7 @@ const App: React.FC = () => {
             </div>
 
             {/* Right Column: Upload Component (Replacing the Image) */}
-            <div className="lg:col-span-7 relative mt-8 lg:mt-0">
+            <div className="lg:col-span-8 relative mt-8 lg:mt-0">
                <div className="absolute -top-4 -right-4 w-20 h-20 bg-cyan-400 rounded-full opacity-20 blur-xl animate-pulse"></div>
                <CVUploadSection />
             </div>
