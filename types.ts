@@ -13,6 +13,8 @@ export interface SuggestedRole {
 }
 
 export interface CVAnalysis {
+  fullName: string;
+  experience: string;
   score: number;
   summary: string;
   strengths: string[];

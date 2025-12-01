@@ -3,30 +3,61 @@ import { CVAnalysis } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-export const analyzeCVContent = async (text: string, desiredIndustry?: string): Promise<CVAnalysis> => {
+export const analyzeCVContent = async (
+  fileData: { data: string; mimeType: string } | null,
+  text: string | null,
+  desiredIndustry?: string
+): Promise<CVAnalysis> => {
   try {
-    const prompt = `Phân tích nội dung CV/Sơ yếu lý lịch dưới đây. Đóng vai trò là chuyên gia tuyển dụng (HR) chuyên nghiệp tại Việt Nam.
-      
-      ${desiredIndustry ? `LƯU Ý QUAN TRỌNG: Ứng viên đang có mong muốn ứng tuyển vào ngành/lĩnh vực: "${desiredIndustry}". Hãy tập trung đánh giá mức độ phù hợp của CV với ngành này.` : ""}
+    const promptText = `Bạn là một chuyên gia tuyển dụng (HR) hàng đầu tại Việt Nam. Nhiệm vụ của bạn là trích xuất thông tin và phân tích CV/Sơ yếu lý lịch được cung cấp dưới đây.
 
-      Nội dung CV: "${text.substring(0, 10000)}"
-      
-      Trả về kết quả định dạng JSON với các thông tin sau (bắt buộc dùng Tiếng Việt):
-      - score: Điểm số từ 0-100 đánh giá chất lượng CV${desiredIndustry ? ` đối với vị trí trong ngành ${desiredIndustry}` : ""}.
-      - summary: Tóm tắt 2 câu về chuyên môn của ứng viên.
-      - strengths: Mảng gồm 3 điểm mạnh nổi bật nhất của ứng viên${desiredIndustry ? ` liên quan đến ngành ${desiredIndustry}` : ""}.
-      - weaknesses: Mảng gồm 3 điểm yếu hoặc kỹ năng cần bổ sung/cải thiện${desiredIndustry ? ` để làm việc tốt trong ngành ${desiredIndustry}. Nếu CV không phù hợp ngành này, hãy nêu rõ lý do.` : ""}.
-      - suggestedRoles: Mảng gồm 3 vị trí công việc phù hợp nhất. ${desiredIndustry ? `Ưu tiên các vị trí trong ngành ${desiredIndustry} nếu có thể, hoặc các vị trí liên quan.` : ""} Với mỗi vị trí, bắt buộc cung cấp thuộc tính "suitability" giải thích lý do phù hợp.
+      ${desiredIndustry ? `LƯU Ý QUAN TRỌNG: Ứng viên mong muốn ứng tuyển vào ngành: "${desiredIndustry}".` : ""}
+
+      Yêu cầu xử lý:
+      1. ĐỌC KỸ tài liệu được cung cấp (File PDF hoặc Text).
+      2. TRÍCH XUẤT chính xác Họ và Tên ứng viên từ tài liệu.
+      3. TÓM TẮT quá trình làm việc/kinh nghiệm thực tế ghi trong CV.
+      4. ĐÁNH GIÁ điểm mạnh, điểm yếu và gợi ý công việc dựa trên dữ liệu thực tế trong CV.
+
+      Tuyệt đối KHÔNG được bịa đặt thông tin không có trong CV. Nếu không tìm thấy tên, trả về "Không xác định".
+
+      Trả về kết quả định dạng JSON với các trường sau (Tiếng Việt):
+      - fullName: Họ và tên ứng viên trích xuất từ CV.
+      - experience: Đoạn văn ngắn tóm tắt các vị trí và công ty ứng viên đã làm việc (dựa trên dữ liệu scan được).
+      - score: Điểm số 0-100 đánh giá chất lượng CV${desiredIndustry ? ` cho ngành ${desiredIndustry}` : ""}.
+      - summary: Nhận xét tổng quan 2 câu về năng lực.
+      - strengths: 3 điểm mạnh nổi bật tìm thấy trong CV.
+      - weaknesses: 3 điểm yếu hoặc kỹ năng còn thiếu${desiredIndustry ? ` so với yêu cầu ngành ${desiredIndustry}` : ""}.
+      - suggestedRoles: 3 vị trí công việc phù hợp nhất. Kèm "suitability" giải thích lý do dựa trên kinh nghiệm có trong CV.
       `;
+
+    const parts: any[] = [];
+    
+    // Add file content if available
+    if (fileData) {
+        parts.push({
+            inlineData: {
+                data: fileData.data,
+                mimeType: fileData.mimeType
+            }
+        });
+    }
+
+    // Add text instructions (and text content if provided instead of file)
+    parts.push({
+        text: fileData ? promptText : `${promptText}\n\nNội dung văn bản CV:\n"${text}"`
+    });
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: { parts },
       config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            fullName: { type: Type.STRING },
+            experience: { type: Type.STRING },
             score: { type: Type.INTEGER },
             summary: { type: Type.STRING },
             strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
@@ -43,7 +74,7 @@ export const analyzeCVContent = async (text: string, desiredIndustry?: string): 
               } 
             },
           },
-          required: ["score", "summary", "strengths", "weaknesses", "suggestedRoles"],
+          required: ["fullName", "experience", "score", "summary", "strengths", "weaknesses", "suggestedRoles"],
         },
       },
     });
